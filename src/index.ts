@@ -4,8 +4,8 @@ import { McpServer } from "@modelcontextprotocol/server";
 import { createMcpHandler, getMcpAuthContext } from "agents/mcp/server";
 import pkg from "../package.json";
 import { createFoodApiClients } from "./foodapis";
-import { isAllowedGithubId } from "./allowlist";
-import { GitHubHandler } from "./github-handler";
+import { isAllowed } from "./allowlist";
+import { AuthHandler } from "./auth-handler";
 import type { Props } from "./utils";
 import { registerTools } from "./tools";
 
@@ -41,9 +41,10 @@ const mcpHandler = createMcpHandler(createServer);
 const apiHandler = {
 	fetch(request: Request, bindings: Env, ctx: ExecutionContext) {
 		// The allowlist is checked on every request, so removing someone from config/allowed-users.json
-		// (and deploying) cuts off their existing tokens too. Tokens without a GitHub id are refused.
-		const githubId = (ctx as { props?: Partial<Props> }).props?.githubId;
-		if (githubId === undefined || !isAllowedGithubId(githubId)) {
+		// (and deploying) cuts off their existing tokens too. Tokens with neither a GitHub id nor a Google email are refused.
+		const props = (ctx as { props?: Partial<Props> }).props;
+		const identity = props?.githubId !== undefined ? { githubId: props.githubId } : props?.googleEmail !== undefined ? { googleEmail: props.googleEmail } : {};
+		if (!isAllowed(identity)) {
 			return Promise.resolve(Response.json({ error: "forbidden", error_description: "This server is private." }, { status: 403 }));
 		}
 		return mcpHandler(request, bindings, ctx);
@@ -55,14 +56,14 @@ const provider = new OAuthProvider<Env>({
 	apiRoute: "/mcp",
 	authorizeEndpoint: "/authorize",
 	clientRegistrationEndpoint: "/register",
-	defaultHandler: GitHubHandler as any,
+	defaultHandler: AuthHandler as any,
 	tokenEndpoint: "/token",
 	// The URL MCP clients connect to. Every token is bound to it.
 	resourceMetadata: { resource: env.MCP_RESOURCE },
 });
 
-// Strangers can reach /register, /authorize and /token without signing in, so they are rate limited per IP address.
-const LIMITED_PATHS = new Set(["/register", "/authorize", "/token", "/callback"]);
+// Strangers can reach /register, /authorize, /token and the callbacks without signing in, so they are rate limited per IP address.
+const LIMITED_PATHS = new Set(["/register", "/authorize", "/token", "/callback", "/callback/google"]);
 export default {
 	async fetch(request: Request, bindings: Env, ctx: ExecutionContext) {
 		if (LIMITED_PATHS.has(new URL(request.url).pathname)) {

@@ -18,7 +18,7 @@
     // The commit that is deployed. CI replaces it with the real one (scripts/provision.mjs); get_server_version reports it.
     "GIT_SHA": "unknown"
   },
-  // Secrets (never in this file): GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, COOKIE_ENCRYPTION_KEY, USDA_API_KEY.
+  // Secrets (never in this file): GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, COOKIE_ENCRYPTION_KEY, USDA_API_KEY.
   // Locally they live in .dev.vars; in production CI sets them from GitHub secrets.
   "kv_namespaces": [
     // id is filled in by scripts/provision.mjs
@@ -28,7 +28,7 @@
     // database_id is filled in by scripts/provision.mjs
     { "binding": "DB", "database_name": "healthy-db", "database_id": "REPLACED_BY_PROVISION", "migrations_dir": "migrations" }
   ],
-  // Rate limit for the sign-in endpoints (/register, /authorize, /token, /callback), per IP address. See src/index.ts.
+  // Rate limit for the sign-in endpoints (/register, /authorize, /token, /callback, /callback/google), per IP address. See src/index.ts.
   "ratelimits": [{ "name": "AUTH_LIMIT", "namespace_id": "1001", "simple": { "limit": 20, "period": 60 } }],
   // Markdown files (docs/dashboard-build-instructions.md) are bundled as text.
   "rules": [{ "type": "Text", "globs": ["**/*.md"], "fallthrough": true }],

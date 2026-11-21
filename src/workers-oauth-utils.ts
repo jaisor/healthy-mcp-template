@@ -122,10 +122,6 @@ async function readApprovedClients(request: Request, secret: string): Promise<st
 	}
 }
 
-export async function isClientApproved(request: Request, clientId: string, cookieSecret: string): Promise<boolean> {
-	return (await readApprovedClients(request, cookieSecret))?.includes(clientId) ?? false;
-}
-
 /** Returns the Set-Cookie value with this client added to the approved list (30 days). */
 export async function addApprovedClient(request: Request, clientId: string, cookieSecret: string): Promise<string> {
 	const clients = Array.from(new Set([...((await readApprovedClients(request, cookieSecret)) ?? []), clientId]));
@@ -198,14 +194,15 @@ ${row("Terms of Service:", link(safeUrl(client?.tosUri)))}
 ${row("Redirect URIs:", redirects, true)}
 ${row("Contact:", client?.contacts?.length ? sanitizeText(client.contacts.join(", ")) : "")}
 </div>
-<p>This MCP Client is requesting to be authorized on ${serverName}. If you approve, you will be redirected to complete authentication.</p>
+<p>This MCP Client is requesting to be authorized on ${serverName}. If you approve, you will sign in with GitHub or Google.</p>
 <p><strong>If you approve, this app can read, add, edit and archive your food, water and workout data.</strong></p>
 <form method="post" action="${new URL(request.url).pathname}">
 <input type="hidden" name="state" value="${btoa(JSON.stringify(state))}">
 <input type="hidden" name="csrf_token" value="${csrfToken}">
 <div class="actions">
 <button type="button" class="button secondary" onclick="window.history.back()">Cancel</button>
-<button type="submit" class="button primary">Approve</button>
+<button type="submit" name="provider" value="github" class="button primary">Continue with GitHub</button>
+<button type="submit" name="provider" value="google" class="button primary">Continue with Google</button>
 </div>
 </form>
 </div>

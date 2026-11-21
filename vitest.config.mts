@@ -13,6 +13,8 @@ export default defineConfig(async () => {
 						TEST_MIGRATIONS: migrations,
 						GITHUB_CLIENT_ID: "test",
 						GITHUB_CLIENT_SECRET: "test",
+						GOOGLE_CLIENT_ID: "test-google",
+						GOOGLE_CLIENT_SECRET: "test",
 						COOKIE_ENCRYPTION_KEY: "test",
 						USDA_API_KEY: "test",
 					},

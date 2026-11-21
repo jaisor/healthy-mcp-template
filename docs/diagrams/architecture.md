@@ -10,7 +10,7 @@ flowchart LR
     W --> D[("<b>D1</b><br/>your data")]
     W --> K[("<b>KV</b><br/>sign-in grants")]
     W -->|"find foods"| F["USDA and<br/>Open Food Facts"]
-    C -.->|"first sign-in only"| G["GitHub<br/>identity only"]
+    C -.->|"first sign-in only"| G["GitHub or Google<br/>identity only"]
     G -.-> W
     A["GitHub Actions"] -->|"test, create, migrate, deploy"| W
 

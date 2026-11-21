@@ -4,6 +4,7 @@ A private health helper template: a remote MCP server (TypeScript, Cloudflare Wo
 
 - All SQL goes through `src/data/`; every function requires `userId` and scopes by `WHERE user_id = ?`. Tool handlers never write SQL.
 - Never accept `user_id` as a tool input; the user comes from the OAuth token.
+- Sign-in is GitHub or Google (`src/auth-handler.ts`). `config/allowed-users.json` lists GitHub numeric ids (`github_id`, never logins) or Google emails (`google_email`, verified only); it is checked at sign-in and on every request, and an empty list lets nobody in. Users are keyed by provider + subject (the GitHub id, or Google's `sub`), so one person on both providers has two accounts.
 - Nutrients are computed by the server from grams, never stored on logs and never computed by the model. Only `foods` (per 100 g) hold nutrient numbers (a saved meal is a food with kind `meal`, and the ingredients it was made from are written into its notes); logs hold a pointer and an amount in grams.
 - Every nutrient on the standard label (kcal, protein, fat, saturated fat, trans fat, carbs, fiber, sugar, added sugar, cholesterol, sodium) is required wherever nutrients are saved. A value that is not listed is estimated by Claude and the food gets source `estimate`; there are no per-nutrient flags.
 - Water is a food, logged with meal type `water` (or with `water_ml` on `log_entries`). There is no water table.
