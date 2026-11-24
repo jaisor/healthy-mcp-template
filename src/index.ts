@@ -66,12 +66,18 @@ const provider = new OAuthProvider<Env>({
 const LIMITED_PATHS = new Set(["/register", "/authorize", "/token", "/callback", "/callback/google"]);
 export default {
 	async fetch(request: Request, bindings: Env, ctx: ExecutionContext) {
-		if (LIMITED_PATHS.has(new URL(request.url).pathname)) {
-			const ip = request.headers.get("cf-connecting-ip");
-			if (!ip) return new Response("Bad request", { status: 400 }); // Cloudflare always sets it
-			const { success } = await bindings.AUTH_LIMIT.limit({ key: ip });
-			if (!success) return new Response("Too many requests. Try again in a minute.", { status: 429, headers: { "Retry-After": "60" } });
+		try {
+			if (LIMITED_PATHS.has(new URL(request.url).pathname)) {
+				const ip = request.headers.get("cf-connecting-ip");
+				if (!ip) return new Response("Bad request", { status: 400 }); // Cloudflare always sets it (and so does the Docker setup's proxy)
+				const { success } = await bindings.AUTH_LIMIT.limit({ key: ip });
+				if (!success) return new Response("Too many requests. Try again in a minute.", { status: 429, headers: { "Retry-After": "60" } });
+			}
+			return await provider.fetch(request, bindings, ctx);
+		} catch (e) {
+			// Never send an unexpected error's details to the client (in Docker, Miniflare would answer with the stack trace).
+			console.error("request failed:", (e as Error)?.name); // never log health data
+			return new Response("Internal server error", { status: 500 });
 		}
-		return provider.fetch(request, bindings, ctx);
 	},
 } satisfies ExportedHandler<Env>;

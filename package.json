@@ -9,7 +9,7 @@
     "cf-typegen": "wrangler types --strict-vars=false --env-file /dev/null",
     "type-check": "npm run cf-typegen && tsc --noEmit",
     "test": "vitest run",
-    "test:scripts": "node --test scripts/provision.node-test.mjs"
+    "test:scripts": "node --test scripts/provision.node-test.mjs scripts/docker.node-test.mjs"
   },
   "dependencies": {
     "@cloudflare/workers-oauth-provider": "^1.2.4",

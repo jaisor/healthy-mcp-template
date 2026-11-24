@@ -108,6 +108,10 @@ Add `WORKER_URL/mcp` (it must end in `/mcp`) as a remote MCP server in your assi
 
 More: [day to day, updating your copy, troubleshooting, how it works and local development](docs/reference.md).
 
+## Or run it with Docker
+
+Instead of Cloudflare, you can run the same server on any machine with Docker, with your data in a SQLite file on that machine. You still need steps 3 to 5 above (sign-in apps and the USDA key), but no Cloudflare account. See [docs/docker.md](docs/docker.md).
+
 ## License
 
 [MIT](LICENSE)

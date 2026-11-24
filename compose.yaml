@@ -1,0 +1,38 @@
+# The Docker alternative to the Cloudflare deploy. Settings come from .env (copy .env.example). See docs/docker.md.
+#
+#   docker compose up -d --build                    on your own machine, with PUBLIC_URL=http://localhost:8788
+#   docker compose --profile https up -d --build    on a server: Caddy gets a certificate for PUBLIC_URL and serves it
+services:
+  healthy:
+    build:
+      context: .
+      args:
+        GIT_SHA: ${GIT_SHA:-unknown}
+    env_file: .env
+    volumes:
+      - healthy-data:/data
+    # Only this machine can reach the app directly: from outside, everything goes through Caddy, which sets the client
+    # address used by the sign-in rate limit (a direct caller could pick its own).
+    ports:
+      - "127.0.0.1:8788:8788"
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    profiles: [https]
+    environment:
+      PUBLIC_URL: ${PUBLIC_URL}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on:
+      - healthy
+    restart: unless-stopped
+
+volumes:
+  healthy-data:
+  caddy-data:

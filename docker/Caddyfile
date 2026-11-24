@@ -1,0 +1,11 @@
+# HTTPS in front of the app (the "https" profile in compose.yaml). Caddy gets and renews the certificate for PUBLIC_URL.
+{$PUBLIC_URL} {
+	# Miniflare's internal routes are never served to the internet.
+	respond /cdn-cgi/* 404
+
+	reverse_proxy healthy:8788 {
+		# The sign-in rate limit is per client address, read from this header (on Cloudflare, Cloudflare sets it).
+		# Setting it here replaces any value the client sent.
+		header_up CF-Connecting-IP {remote_host}
+	}
+}

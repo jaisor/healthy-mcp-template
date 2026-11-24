@@ -93,4 +93,5 @@ Other commands: `npm run type-check` (generates the Cloudflare types first; they
 - `src/foodapis/`: USDA and Open Food Facts clients
 - `docs/`: reference, data-model diagrams, hardening; `migrations/`: database schema; `config/allowed-users.json`: who may sign in
 - `scripts/provision.mjs`: creates the D1 database and KV namespace if missing (used by the Deploy workflow)
+- `Dockerfile`, `compose.yaml`, `docker/Caddyfile`, `scripts/docker.mjs`: the Docker alternative to Cloudflare ([docs/docker.md](docker.md))
 - `.github/workflows/`: `ci.yml` (tests) and `deploy.yml` (the only way anything is deployed)

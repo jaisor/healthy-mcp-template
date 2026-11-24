@@ -9,8 +9,9 @@ A private health helper template: a remote MCP server (TypeScript, Cloudflare Wo
 - Every nutrient on the standard label (kcal, protein, fat, saturated fat, trans fat, carbs, fiber, sugar, added sugar, cholesterol, sodium) is required wherever nutrients are saved. A value that is not listed is estimated by Claude and the food gets source `estimate`; there are no per-nutrient flags.
 - Water is a food, logged with meal type `water` (or with `water_ml` on `log_entries`). There is no water table.
 - Never ask for or require gender or sex anywhere in the schema or tools.
-- Secrets live in GitHub secrets (production, set by the Deploy workflow) or `.dev.vars` (local, gitignored). Never commit them. Never put an account-specific id, name or URL in the repo.
-- Deploys come only from GitHub Actions (`.github/workflows/deploy.yml`), never from a laptop.
+- Secrets live in GitHub secrets (production, set by the Deploy workflow), `.dev.vars` (local, gitignored) or `.env` (Docker, gitignored). Never commit them. Never put an account-specific id, name or URL in the repo.
+- Cloudflare deploys come only from GitHub Actions (`.github/workflows/deploy.yml`), never from a laptop.
+- Docker (`Dockerfile`, `compose.yaml`, `docs/docker.md`) is the self-hosted alternative: the same Worker bundle on workerd through Miniflare (`scripts/docker.mjs`), with D1 and KV as SQLite files in `/data`. Keep the app code runtime-neutral: no Docker-only branches in `src/`.
 - `migrations/0001_schema.sql` is the full schema. Once it has run anywhere, never edit it: add a new numbered migration.
 - Layers: zod input shapes and tool text in `src/tools/`; rules that need the database in `src/services/`; SQL only in `src/data/`; pure math in `src/nutrition.ts`.
 - Nothing is deleted through the tools: logs, workouts, foods and daily target metrics are archived (`archived_at`), and every read of logs, workouts and daily target metrics filters `archived_at IS NULL`.
